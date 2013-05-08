@@ -1,0 +1,27 @@
+This is my personal vim environment.
+
+Plugins:   
+ctags		: sudo apt-get install exuberant-ctags
+taglist 	: clone from https://github.com/vim-scripts/taglist.vim
+minibufexpl  	: clone from https://github.com/fholgado/minibufexpl.vim.git
+winmanager	: clone from https://github.com/vim-scripts/winmanager.git
+a.vim		: clone from https://github.com/vim-scripts/a.vim
+The nerd-tree   : clone from https://github.com/vim-scripts/The-NERD-tree.git
+neocomplcache   : clone from https://github.com/vim-scripts/neocomplcache.git
+
+colors: clone from https://github.com/nono/github_vim_theme.git
+
+
+read more:
+ctags : generate tags on source code
+taglist: show tags on vim window
+minibufexpl: show little screen windows
+winmanager: make vim like windows 
+a.vim	:  switch header and source code
+colors:   githu style colorscheme
+neocomplcache: word auto completion
+
+
+
+
+
