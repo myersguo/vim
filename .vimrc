@@ -158,12 +158,6 @@ inoremap <expr><C-e>  neocomplcache#cancel_popup()
 "inoremap <expr><TAB>  pumvisible() ? "\<Down>" : "\<TAB>"
 "inoremap <expr><CR>  neocomplcache#smart_close_popup() . "\<CR>"
 
-" Enable omni completion. Not required if they are already set elsewhere in .vimrc
-autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 
 " Enable heavy omni completion, which require computational power and may stall the vim. 
 if !exists('g:neocomplcache_omni_patterns')
@@ -174,3 +168,137 @@ let g:neocomplcache_omni_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
 let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
 let g:neocomplcache_omni_patterns.c = '\%(\.\|->\)\h\w*'
 let g:neocomplcache_omni_patterns.cpp = '\h\w*\%(\.\|->\)\h\w*\|\h\w*::'
+
+
+function! AutoPair(open, close)
+        let line = getline('.')
+        if col('.') > strlen(line) || line[col('.') - 1] == ' ' 
+                return a:open.a:close."\<ESC>i"
+        else
+                return a:open
+        endif
+endf
+ 
+function! ClosePair(char)
+        if getline('.')[col('.') - 1] == a:char
+                return "\<Right>"
+        else
+                return a:char
+        endif
+endf
+ 
+function! SamePair(char)
+        let line = getline('.')
+        if col('.') > strlen(line) || line[col('.') - 1] == ' ' 
+                return a:char.a:char."\<ESC>i"
+        elseif line[col('.') - 1] == a:char
+                return "\<Right>"
+        else
+                return a:char
+        endif
+endf
+inoremap ( <c-r>=AutoPair('(', ')')<CR>
+inoremap ) <c-r>=ClosePair(')')<CR>
+inoremap { <c-r>=AutoPair('{', '}')<CR>
+inoremap } <c-r>=ClosePair('}')<CR>
+inoremap [ <c-r>=AutoPair('[', ']')<CR>
+inoremap ] <c-r>=ClosePair(']')<CR>
+inoremap " <c-r>=SamePair('"')<CR>
+inoremap ' <c-r>=SamePair("'")<CR>
+inoremap ` <c-r>=SamePair('`')<CR>
+ 
+ 
+autocmd BufNewFile *.[ch],*.hpp,*.cpp exec ":call SetTitle()"
+ 
+autocmd BufNewFile *.php exec ":call SetPhpComment()"
+ 
+func SetPhpComment()
+     call setline(1,"<?php")
+     call append(line("."),"/*===========================================")
+     call append(line(".")+1,   "*   Copyright (C) ".strftime("%Y")." All rights reserved.")
+     call append(line(".")+2, "*   ")
+     call append(line(".")+3, "*   company      : xiaomi")
+     call append(line(".")+4, "*   author       : " .$USER."")
+     call append(line(".")+5, "*   email        : " .$USER."@xiaomi.com")
+     call append(line(".")+6, "*   date         ：".strftime("%Y-%m-%d %H:%M:%S"))
+     call append(line(".")+7, "*   description  ：")
+     call append(line(".")+8, "*")
+     call append(line(".")+9, "=============================================*/")
+endfunc
+
+ func SetComment()
+     call setline(1,"/*===========================================")
+     call append(line("."),   "*   Copyright (C) ".strftime("%Y")." All rights reserved.")
+     call append(line(".")+1, "*   ")
+     call append(line(".")+2, "*   company      : xiaomi")
+     call append(line(".")+3, "*   author       : " .$USER."")
+     call append(line(".")+4, "*   email        : " .$USER."@xiaomi.com")
+     call append(line(".")+5, "*   date         ：".strftime("%Y-%m-%d %H:%M:%S"))
+     call append(line(".")+6, "*   description  ：")
+     call append(line(".")+7, "*")
+     call append(line(".")+8, "=============================================*/")
+ endfunc
+ 
+func SetTitle()
+     call SetComment()
+     if expand("%:e") == 'h'
+  call append(line(".")+9, "#ifndef _".toupper(expand("%:t:r"))."_H_")
+  call append(line(".")+10, "#define _".toupper(expand("%:t:r"))."_H_")
+  call append(line(".")+11, "")
+  call append(line(".")+12, "")
+  call append(line(".")+13, "")
+  call append(line(".")+14, "")
+  call append(line(".")+15, "")
+  call append(line(".")+16, "")
+  call append(line(".")+17, "")
+  call append(line(".")+18, "#endif //_".toupper(expand("%:t:r"))."_H")
+     elseif &filetype == 'c'
+  call append(line(".")+9,"#include \"".expand("%:t:r").".h\"")
+     elseif &filetype == 'cpp'
+  call append(line(".")+9, "#include \"".expand("%:t:r").".h\"")
+ 
+     endif
+endfunc
+
+
+function! KeywordsAll()
+    setl iskeyword=@,48-57,192-255,\@,\$,%,-,_
+endfunc
+
+function! KeywordsBasic()
+    setl iskeyword=@,48-57,192-255
+endfunc
+
+" improve the 'search word under cursor' behavior
+nnoremap * :silent call KeywordsAll() * :silent call KeywordsBasic()
+nnoremap # :silent call KeywordsAll() # :silent call KeywordsBasic()
+
+augroup is_keyword
+  " clear commands before resetting
+  autocmd!
+  " make sure `complete` works as expected for CSS class names whithout
+  " messing with motions (eg. '.foo-bar__baz') and we make sure all
+  " delimiters (_,-,$,%,.) are treated as word separators outside insert mode
+  autocmd InsertEnter,BufLeave * :call KeywordsAll()
+  autocmd InsertLeave,BufEnter * :call KeywordsBasic()
+  " yes, we need to duplicate it on VimEnter for some weird reason
+  autocmd VimEnter * nnoremap * :silent call KeywordsAll() * :silent call KeywordsBasic()
+  autocmd VimEnter * nnoremap # :silent call KeywordsAll() # :silent call KeywordsBasic()
+augroup END
+
+set infercase
+set completeopt=longest,menuone
+set omnifunc=syntaxcomplete#Complete
+set completefunc=syntaxcomplete#Complete
+set complete=.,w,b,u,U,t,i,d
+
+augroup omni_complete
+  " clear commands before resetting
+  autocmd!
+  " Enable omnicomplete for supported filetypes
+  autocmd FileType css,scss setlocal omnifunc=csscomplete#CompleteCSS
+  autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+  autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+  autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+  autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+augroup END
