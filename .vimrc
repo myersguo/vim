@@ -14,6 +14,9 @@ set t_Co=256
 syntax on
 colorscheme desert
 
+autocmd FileType html set ts=2 sts=2 sw=2
+autocmd FileType javascript set ts=4 sts=4 sw=4
+
 
 inoremap <C-f> <Right>
 inoremap <C-b> <Left>
@@ -208,9 +211,9 @@ inoremap ' <c-r>=SamePair("'")<CR>
 inoremap ` <c-r>=SamePair('`')<CR>
  
  
-autocmd BufNewFile *.[ch],*.hpp,*.cpp exec ":call SetTitle()"
+autocmd BufNewFile *.[ch],*.hpp,*.cpp exec ":call SetTitle()"  |  exec  ":normal Go"
  
-autocmd BufNewFile *.php exec ":call SetPhpComment()"
+autocmd BufNewFile *.php exec ":call SetPhpComment()" | exec  ":normal Go"
  
 func SetPhpComment()
      call setline(1,"<?php")
